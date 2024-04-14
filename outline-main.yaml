@@ -1,0 +1,134 @@
+---
+- hosts: localhost
+  become: yes
+  vars_files:
+    - /home/ec2-user/vars.yaml
+
+  tasks:
+    # VPC #
+    - name: Create VPC
+      ec2_vpc_net:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        cidr_block: "{{ vpc_cidr_block }}"
+        region: "{{ region }}"
+        name: ansible-vpc
+        state: present
+        tags:
+          Name: ansible-vpc
+      register: vpc
+
+    # INTERNET GATEWAY #
+    - name: Create Internet Gateway
+      ec2_vpc_igw:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+        tags:
+          Name: ansible-igw
+      register: igw
+
+    # PUBLIC SUBNET #
+    - name: Create public subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        az: "{{ pubzone }}"
+        state: present
+        cidr: "{{ public_subnet_cidr }}"
+        map_public: yes
+        tags:
+          Name: ansible-pub-sub
+      register: pubsubnet
+
+    # PRIVATE SUBNET #
+    - name: Create private subnet
+      ec2_vpc_subnet:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        az: "{{ pvtzone }}"
+        state: present
+        cidr: "{{ private_subnet_cidr }}"
+        map_public: no
+        tags:
+          Name: ansible-pvt-sub
+      register: pvtsubnet
+
+    # PUBLIC ROUTE TABLE #
+    - name: Create public route table
+      ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+        tags:
+          Name: ansible-pub-rt
+        subnets:
+          - "{{ pubsubnet.subnet.id }}"
+        routes:
+          - dest: "{{ anywhere }}"
+            gateway_id: "{{ igw.gateway_id }}"
+      register: publicrt
+
+    # PRIVATE ROUTE TABLE #
+    - name: Create private route table
+      ec2_vpc_route_table:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+        tags:
+          Name: ansible-pvt-rt
+        subnets:
+          - "{{ pvtsubnet.subnet.id }}"
+      register: privatert
+
+    # SECURITY GROUP #
+    - name: Create security group
+      ec2_group:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_id: "{{ vpc.vpc.id }}"
+        region: "{{ region }}"
+        state: present
+        name: ansible-sg
+        description: Allow All Traffic
+        tags:
+          Name: ansible-sg
+        rules:
+          - proto: all
+            cidr_ip: "{{ anywhere }}"
+            rule_desc: "allow all traffic"
+        rules_egress:
+          - proto: all
+            cidr_ip: "{{ anywhere }}"
+            rule_desc: "Allow all outbound traffic"
+      register: securitygroup
+
+    # EC2 INSTANCE #
+    - name: Create EC2 instance
+      ec2:
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        image: "{{ ami_id }}"
+        instance_type: t2.micro
+        region: "{{ region }}"
+        count: 1
+        state: present
+        vpc_subnet_id: "{{ pubsubnet.subnet.id }}"
+        assign_public_ip: yes
+        group_id: "{{ securitygroup.group_id }}"
+        key_name: "{{ key_name }}"
+        instance_tags:
+          Name: ansible
+        user_data: "{{ lookup('file', setup_script_path) }}"
+      register: ec2instance
+
