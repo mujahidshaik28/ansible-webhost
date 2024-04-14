@@ -1,0 +1,180 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    # EC2 INSTANCE #
+    - name: Terminate EC2 instance
+      ec2:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        instance_ids:
+          - "i-0a7aa2e08f19c6d37"
+        state: absent
+
+    # SECURITY GROUP #
+    - name: Delete security group
+      ec2_group:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        group_id: "sg-0dcc09832c56a4309"
+        state: absent
+
+    # PRIVATE ROUTE TABLE #
+    - name: Delete private route table
+      ec2_vpc_route_table:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        route_table_id: "rtb-05803939f7ead8782"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PUBLIC ROUTE TABLE #
+    - name: Delete public route table
+      ec2_vpc_route_table:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        route_table_id: "rtb-02aca0e5fb5dad27b"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PRIVATE SUBNET #
+    - name: Delete private subnet
+      ec2_vpc_subnet:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr: "10.0.2.0/24"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PUBLIC SUBNET #
+    - name: Delete public subnet
+      ec2_vpc_subnet:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr: "10.0.1.0/24"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # INTERNET GATEWAY #
+    - name: Detach Internet Gateway
+      ec2_vpc_igw:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    - name: Delete Internet Gateway
+      ec2_vpc_igw:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # VPC #
+    - name: Delete VPC
+      ec2_vpc_net:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr_block: "10.0.0.0/16"
+        state: absent
+        name: "ansible-vpc"
+
+---
+- hosts: localhost
+  become: yes
+  tasks:
+    # EC2 INSTANCE #
+    - name: Terminate EC2 instance
+      ec2:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        instance_ids:
+          - "i-0a7aa2e08f19c6d37"
+        state: absent
+
+    # SECURITY GROUP #
+    - name: Delete security group
+      ec2_group:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        group_id: "sg-0dcc09832c56a4309"
+        state: absent
+
+    # PRIVATE ROUTE TABLE #
+    - name: Delete private route table
+      ec2_vpc_route_table:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        route_table_id: "rtb-05803939f7ead8782"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PUBLIC ROUTE TABLE #
+    - name: Delete public route table
+      ec2_vpc_route_table:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        route_table_id: "rtb-02aca0e5fb5dad27b"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PRIVATE SUBNET #
+    - name: Delete private subnet
+      ec2_vpc_subnet:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr: "10.0.2.0/24"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # PUBLIC SUBNET #
+    - name: Delete public subnet
+      ec2_vpc_subnet:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr: "10.0.1.0/24"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # INTERNET GATEWAY #
+    - name: Detach Internet Gateway
+      ec2_vpc_igw:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    - name: Delete Internet Gateway
+      ec2_vpc_igw:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        vpc_id: "vpc-08488e809bef1a065"
+        state: absent
+
+    # VPC #
+    - name: Delete VPC
+      ec2_vpc_net:
+        aws_access_key: "<YOUR ACCESS KEY>"
+        aws_secret_key: "<YOUR SECRET KEY>"
+        region: "us-east-2"
+        cidr_block: "10.0.0.0/16"
+        state: absent
+        name: "ansible-vpc"
+
